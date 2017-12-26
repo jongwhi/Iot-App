@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         map.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, MapFragment.class);
+                Intent intent = new Intent(MainActivity.this, Map.class);
                 startActivity(intent);
             }
         });
