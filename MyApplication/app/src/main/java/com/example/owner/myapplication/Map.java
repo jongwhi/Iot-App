@@ -3,6 +3,8 @@ package com.example.owner.myapplication;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
@@ -11,6 +13,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -20,7 +23,7 @@ import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Map extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
+public class Map extends AppCompatActivity implements OnMapReadyCallback {
     static final LatLng HansungUniversity = new LatLng(37.582428, 127.011291);
     static final LatLng SuperFront = new LatLng(37.583514, 127.011087);
     static final LatLng BeobHwaSa = new LatLng(37.584562, 127.011026);
@@ -33,7 +36,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Locati
     static final LatLng SamYeongTang = new LatLng(37.588798, 127.010118);
 
     private ArrayList<LatLng> shuttle = new ArrayList<LatLng>(
-            Arrays.asList(HansungUniversity, SuperFront, BeobHwaSa, SamGeoLi, TaxOffice,
+            Arrays.asList(HansungUniversity, HansungUniversity, SuperFront, BeobHwaSa, SamGeoLi, TaxOffice,
                     SamSeonMarket, HansungStation, HansungStationExit2, GreenCrossPharmacy, SamYeongTang,
                     TaxOffice, SamGeoLi, BeobHwaSa, SuperFront, HansungUniversity));
     GoogleMap googleMap;
@@ -41,51 +44,52 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback, Locati
     CameraUpdate cameraUpdate;
     CameraUpdate zoom;
     Marker marker;
+    static int i = 0;
     public void onMapReady(final GoogleMap map) {
-        int j=0;
-        for(int i=0; i<shuttle.size();i++) {
-            if(i == 20) {
-                j++;
-            }
-            moveMarker(map, shuttle.get(j));
+        googleMap = map;
+        if (i>=15){
+            moveMarker(map, shuttle.get(0));
+        } else{
+            moveMarker(map, shuttle.get(i));
         }
     }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.googlemap);
-        mapFragment.getMapAsync(this);
+        final Handler markerHandler = new Handler(){
+            public void handleMessage(Message msg){
+                MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.googlemap);
+                mapFragment.getMapAsync(Map.this);
+            }
+        };
+        Runnable markerRunnable = new Runnable() {
+            @Override
+            public void run() {
+                while (i < 16) {
+                    try {
+                        Thread.sleep(4000);
+                        Message msg = Message.obtain();
+                        markerHandler.sendMessage(msg);
+                        i++;
+                    } catch (InterruptedException e) {
+                        e.getStackTrace();
+                    }
+                }
+            }
+        };
+        Thread markerThread = new Thread(markerRunnable);
+        markerThread.start();
     }
     public void moveMarker(final GoogleMap map, LatLng latLng){
         googleMap = map;
         googleMap.clear();
         cameraUpdate = CameraUpdateFactory.newLatLng(latLng);
         googleMap.moveCamera(cameraUpdate);
-        zoom = CameraUpdateFactory.zoomTo(18);
+        zoom = CameraUpdateFactory.zoomTo(16);
         googleMap.animateCamera(zoom);
         markerOptions = new MarkerOptions().position(latLng);
         marker = googleMap.addMarker(markerOptions);
         googleMap.addMarker(markerOptions).showInfoWindow();
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-
-    }
-
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String s) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String s) {
-
     }
 }
