@@ -35,6 +35,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback {
     static final LatLng GreenCrossPharmacy = new LatLng(37.589737, 127.009385);
     static final LatLng SamYeongTang = new LatLng(37.588798, 127.010118);
 
+    // 클라우드에서 값을 받아오지 못해서 수동으로 좌표값 배열에 저장
     private ArrayList<LatLng> shuttle = new ArrayList<LatLng>(
             Arrays.asList(HansungUniversity, HansungUniversity, SuperFront, BeobHwaSa, SamGeoLi, TaxOffice,
                     SamSeonMarket, HansungStation, HansungStationExit2, GreenCrossPharmacy, SamYeongTang,
@@ -45,6 +46,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback {
     CameraUpdate zoom;
     Marker marker;
     static int i = 0;
+    // moveMarker 함수를 이용하여 marker 갱신
     public void onMapReady(final GoogleMap map) {
         googleMap = map;
         if (i>=15){
@@ -57,6 +59,8 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        // markerHandler, markerRunnable, markerThread
+        // -> 마커 갱신을 위한 thread -> 4초마다 갱신
         final Handler markerHandler = new Handler(){
             public void handleMessage(Message msg){
                 MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.googlemap);
@@ -81,6 +85,7 @@ public class Map extends AppCompatActivity implements OnMapReadyCallback {
         Thread markerThread = new Thread(markerRunnable);
         markerThread.start();
     }
+    // 실질적으로 마커 갱신 해주는 함수
     public void moveMarker(final GoogleMap map, LatLng latLng){
         googleMap = map;
         googleMap.clear();

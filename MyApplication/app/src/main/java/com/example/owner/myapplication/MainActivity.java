@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         text1 = (TextView) findViewById(R.id.text1);
+        // images 배열로 애니메이션 구현을 thread를 사용하여 구현
         final int[] images = {R.drawable.busstop0, R.drawable.busstop0, R.drawable.busstop0,
                 R.drawable.busstop0, R.drawable.busstop1, R.drawable.busstop1,
                 R.drawable.busstop2, R.drawable.busstop3, R.drawable.busstop4,
@@ -36,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
                 R.drawable.busstop9, R.drawable.busstop10, R.drawable.busstop11,
                 R.drawable.busstop12, R.drawable.busstop13, R.drawable.busstop14, R.drawable.busstop1};
 
+        // timeHandler -> 현재 시간을 1초마다 갱신시켜주기 위한 handler
+        // timeRunnable, timeThread -> 현재 시간을 1초마다 갱신시켜주는 thread
         final Handler timeHandler = new Handler(){
             public void handleMessage(Message msg){
                 long now = System.currentTimeMillis();
@@ -65,15 +68,17 @@ public class MainActivity extends AppCompatActivity {
 
         text2 = (TextView) findViewById(R.id.text2);
         table = (Button) findViewById(R.id.table);
+        // table 버튼 -> dialog로 운행시간표 표시
         table.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // show() 메소드 -> dialog를 표시해주는 함수
                 show();
             }
         });
 
-
         map = (Button) findViewById(R.id.map);
+        // map 버튼 -> Map Activity로 이동 -> 구글 맵을 보여주는 Activity
         map.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -81,10 +86,16 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        // 애니메이션 구현해주는 부분
         imageView = (ImageView) findViewById(R.id.animation);
+        // imageHandler -> 애니메이션 구현 handler
+        // imageRunnable, imageThread -> 애니메이션 구현 thread
+        // 3초마다 이미지 변경으로 애니메이션 구현
         final Handler imageHandler = new Handler(){
             public void handleMessage(Message msg){
                 imageView.setImageResource(images[msg.what]);
+
+                // if문을 사용하여 버스의 위치마다 출력되는 메시지를 다르게 설정
                 if(msg.what == 0){
                     text2.setText("현재 운행 중이 아닙니다.");
                 } else if (msg.what == 1){
@@ -132,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         Thread imageThread = new Thread(imageRunnable);
         imageThread.start();
     }
+    // dialog 보여주기 위한 함수
     void show(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Shuttle Table");
